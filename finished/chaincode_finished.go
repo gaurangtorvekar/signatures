@@ -83,36 +83,20 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 // write - invoke function to write key/value pair
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var email, hash string
+	var key, value string
 	var err error
 	fmt.Println("running write()")
 
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
 	}
-	email = args[0] //rename for funsies
-	hash = args[1]
 
-	// Check if PDF has already been signed by this user
-	sigAsBytes, err := stub.GetState(hash)
-	if err != nil {
-		return nil, errors.New("Failed to get signature hash")
-	}	
-	res := Signature{}
-	json.Unmarshal(sigAsBytes, &res)
-	if res.PdfHash == hash && res.Email == email {
-		fmt.Println("This PDF has already been signed by this email: " + email)
-		fmt.Println(res)
-		return nil, errors.New("PDF already signed by this email")
-	}
-
-	// build the signatures json string manually
-	str := `{"email": "` + email + `", "pdfhash": "` + hash + `"}`
-	err = stub.PutState(hash, []byte(str))
+	key = args[0] //rename for funsies
+	value = args[1]
+	err = stub.PutState(key, []byte(value)) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err
 	}
-
 	return nil, nil
 }
 

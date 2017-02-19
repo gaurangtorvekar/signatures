@@ -19,8 +19,9 @@ package main
 import (
 	"errors"
 	"fmt"
+	s "strings"
 	"encoding/json"
-	
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -28,7 +29,7 @@ import (
 type SimpleChaincode struct {
 }
 type Signature struct {
-	Email string `json:"email"`
+	Emails string `json:"email"`
 	PdfHash string `json:"pdfhash"`
 }
 
@@ -100,14 +101,20 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
     }   
     res := Signature{}
     json.Unmarshal(sigAsBytes, &res)
-    if res.PdfHash == hash && res.Email == email {
-        fmt.Println("This PDF has already been signed by this email: " + email)
-        fmt.Println(res)
-        return nil, errors.New("PDF already signed by this email")
+    old_emails_str := res.Emails
+    old_emails := s.Split(old_emails_str, ",")
+	new_emails := []string{}
+    if res.PdfHash == hash {
+    	new_emails = append(new_emails, email)
+		for _, v := range old_emails {
+		    if v != email {
+		        new_emails = append(new_emails, v)
+		    }
+		}
     }
-
+    new_emails_string := s.Join(new_emails, ",")
     // build the signatures json string manually
-    str := `{"email": "` + email + `", "pdfhash": "` + hash + `"}`
+    str := `{"email": "` + new_emails_string + `", "pdfhash": "` + hash + `"}`
     err = stub.PutState(hash, []byte(str))
     if err != nil {
         return nil, err

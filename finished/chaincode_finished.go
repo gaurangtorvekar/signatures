@@ -104,9 +104,9 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
     old_emails_str := res.Emails
     old_emails := s.Split(old_emails_str, ",")
 	new_emails := []string{}
+	new_emails = append(new_emails, email)
     if res.PdfHash == hash {
-    	new_emails = append(new_emails, email)
-		for _, v := range old_emails {
+    	for _, v := range old_emails {
 		    if v != email {
 		        new_emails = append(new_emails, v)
 		    }

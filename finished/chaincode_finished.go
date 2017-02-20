@@ -91,8 +91,8 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
     if len(args) != 2 {
         return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
     }
-    email = args[0] //rename for funsies
-    hash = args[1]
+    email = args[1] //rename for funsies
+    hash = args[0]
 
     // Check if PDF has already been signed by this user
     sigAsBytes, err := stub.GetState(hash)
